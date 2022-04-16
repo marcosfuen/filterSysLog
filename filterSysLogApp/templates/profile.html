@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% load navigation_filters %}
+{% if user.is_superuser or user.is_staff %}
+<h2 class="text-center">Selecciona los parámetros a filtrar</h2><br />
+
+
+<nav class="navbar navbar-expand-lg text-dark bg-light mb-4">
+
+    <form method="get">
+
+        <div class="row">
+            <div class="col-2">
+                <label for="programs" class="d-inline">Programs: </label>
+                <select name="programs" id="programs" class="form-control d-inline">
+                    <option value="">
+                        Seleccione parámetro
+                    </option>
+                    <option value="1">BANDWIDTHD</option>
+                    <option value="2">BARNYARD2</option>
+                    <option value="3">CHECK_RELOAD_STATUS</option>
+                    <option value="4">CRON</option>
+                    <option value="5">DHCPD</option>
+                    <option value="6">DHCPLEASES</option>
+                    <option value="7">DNSMASQ</option>
+                    <option value="8">DPINGER</option>
+                    <option value="9">DROPBEAR</option>
+                    <option value="10">FILTERDNS</option>
+                    <option value="11">FILTERLOG</option>
+                    <option value="12">HOSTAPD</option>
+                    <option value="13">HTTPD</option>
+                    <option value="14">KERNEL</option>
+                    <option value="15">LOGPORTALAUTH</option>
+                    <option value="16">NGINX</option>
+                    <option value="17">NTPCLIENT</option>
+                    <option value="18">PHP</option>
+                    <option value="19">PHP-CGI</option>
+                    <option value="20">PHP-FPM</option>
+                    <option value="21">PHP_PFB</option>
+                    <option value="22">PKG-STATIC</option>
+                    <option value="23">PROCESS_MONITOR</option>
+                    <option value="24">RESETBUTTON</option>
+                    <option value="25">SNMPD</option>
+                    <option value="26">SNORT</option>
+                    <option value="27">SOFTFLOWD</option>
+                    <option value="28">SYSLOG</option>
+                    <option value="29">SYSLOGD</option>
+                    <option value="30">TELNETD</option>
+                    <option value="31">WLAND</option>
+                </select>
+            </div>
+
+            <div class="col-2">
+                <label for="device" class="d-inline">Device id: </label>
+                <input type="number" name="device" id="device" placeholder="0" value="0" min="0" class="form-control">
+            </div>
+
+            <div class="col-3">
+                <label for="initDate" class="d-inline">Fecha inicio:</label>
+                <input type="date" name="initDate" id="initDate" class="form-control">
+            </div>
+
+            <div class="col-3">
+                <label for="endDate" class="d-inline">Fecha final:</label>
+                <input type="date" name="endDate" id="endDate" class="form-control">
+            </div>
+
+            <div class="col-2" style="margin-top:21px;">
+                <button type="submit" class="btn btn-warning">Filtrar</button>
+                <button type="reset" class="btn btn-warning">Reset</button>
+            </div>
+
+        </div>
+    </form>
+
+</nav>
+<!-- </nav> -->
+<!-- 
+<nav class="navbar navbar-expand-lg text-dark bg-light mb-4">
+    <form method="POST">
+        {% csrf_token %}
+        {{ form }}
+        <div class="col-4" style="margin-top:21px;">
+            <button type="submit" class="btn btn-warning">Filtrar</button>
+            <button type="reset" class="btn btn-warning">Reset</button>
+        </div>
+    </form>
+
+</nav>
+ -->
+{% endif %}
+
+
+<table class="table">
+    {% if page_obj %}
+    <thead class="thead-dark">
+        <tr>
+            <th>#</th>
+            <th>Device id</th>
+            <th>Facility</th>
+            <th>Priority</th>
+            <th>Tag</th>
+            <th>Timestamp</th>
+            <th>Program</th>
+            <th>Msg</th>
+            <th>Seq</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in page_obj %}
+        <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.device_id }}</td>
+            <td>{{ p.facility }}</td>
+            <td>{{ p.priority }}</td>
+            <td>{{ p.tag }}</td>
+            <td>{{ p.timestamp }}</td>
+            <td>{{ p.program }}</td>
+            <td>{{ p.msg }}</td>
+            <td>{{ p.seq }}</td>
+
+        </tr>
+        {% endfor %}
+        {% else %}
+        {% if errors %}
+        {% for e in errors %}
+        <div class="alert alert-danger mt-2">
+            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span
+                    class="sr-only">Close</span></button>
+            {{ e }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% endif %}
+    </tbody>
+</table>
+{% if page_obj %}
+<ul class="pagination justify-content-center">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+        <a href="?{{parametros.urlencode}}">&laquo; inicio</a> |
+        <a href="?page={{ page_obj.previous_page_number }}&{{parametros.urlencode}}" >anterior</a>
+        {% endif %}
+        {% for i in page_obj.paginator.page_range|page_filter:page_obj %}
+                {% if page_obj.number == i%}
+                    <a href="?page={{ page_obj.next_page_number }}&{{parametros.urlencode}}" onclick="return false;" title="{{Disables}}" class="text-info">{{ i }}</a>
+                {% else %}
+                    <a href="?page={{ i }}&{{parametros.urlencode}}" title="{{ i }}">{{ i }}</a>
+                {% endif %}
+        {% endfor %}
+        <!-- <span class="current">
+            pagína {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+        </span> -->
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&{{parametros.urlencode}}">siguiente</a> |
+        <a href="?page={{ page_obj.paginator.num_pages }}&{{parametros.urlencode}}">ultimo
+            &raquo;</a>
+        {% endif %}
+    </span>
+</ul>
+{% endif %}
+<br>
+{% endblock %}
